@@ -1,0 +1,9 @@
+----------- Colocar el nombre de usuario de Bienvenida -----------------
+Aplica a Labels en la propiedad Text.
+
+"Bienvenido " & User().FullName
+
+
+----------- validar conexion-------------
+
+If (Connection.Connected; "Connected";"Offline")
