@@ -1,0 +1,122 @@
+Paso 1 agrega Twitter a una aplicación de teléfono en blanco
+En Power Apps Studio, seleccione Archivo  Nuevo .
+En el mosaico de la aplicación en blanco , seleccione Diseño del teléfono .
+En la pestaña Ver , seleccione Orígenes de datos .
+En el panel Datos , seleccione Agregar origen de datos .
+Seleccione Nueva conexión  Twitter  Crear .
+Ingrese sus credenciales, cree la conexión y luego cierre el panel Datos .
+Paso 2 recopila los tweets existentes
+En el panel de la vista de árbol , seleccione Aplicación y luego configure su propiedad OnStart a esta fórmula
+
+Aplicaciones de poder
+
+Copiar
+If( Connection.Connected,
+    ClearCollect( LocalTweets, Twitter.SearchTweet( PowerApps, {maxResults 10} ) );
+        Set( statusText, Online data ),
+    LoadData( LocalTweets, LocalTweets, true );
+        Set( statusText, Local data )
+);
+SaveData( LocalTweets, LocalTweets );
+Fórmula para cargar tweets
+
+En el panel Vista de árbol , seleccione el menú de puntos suspensivos para el objeto Aplicación y luego seleccione Ejecutar al iniciar para ejecutar esa fórmula.
+
+Ejecutar fórmula para cargar tweets
+
+ Nota
+
+Las funciones LoadData y SaveData pueden mostrar un error en Power Apps Studio porque los navegadores no las admiten. Sin embargo, funcionarán normalmente después de que implemente esta aplicación en un dispositivo.
+
+Esta fórmula verifica si el dispositivo está en línea
+
+Si el dispositivo está en línea, la fórmula carga hasta 10 tweets con el término de búsqueda PowerApps en una colección LocalTweets .
+Si el dispositivo está fuera de línea, la fórmula carga el caché local de un archivo llamado LocalTweets si está disponible.
+Paso 3 mostrar tweets en una galería
+En la pestaña Insertar , seleccione Galería  Altura flexible en blanco .
+
+Establezca la propiedad Elementos del control de Galería en LocalTweets.
+
+En la plantilla de la galería, agregue tres controles de etiqueta y establezca la propiedad Text de cada etiqueta en uno de estos valores
+
+ThisItem.UserDetails.FullName &  (@ & ThisItem.UserDetails.UserName & )
+Text(DateTimeValue(ThisItem.CreatedAtIso), DateTimeFormat.ShortDateTime)
+ThisItem.TweetText
+Ponga el texto en la última etiqueta en negrita para que la galería se parezca a este ejemplo.
+
+Galería que muestra tweets de muestra
+
+Paso 4 Mostrar el estado de la conexión
+Debajo de la galería, inserte una etiqueta y luego configure su propiedad Color en Rojo .
+
+Establezca la propiedad Text de la etiqueta más nueva en esta fórmula
+
+If( Connection.Connected, Connected, Offline )
+
+Esta fórmula determina si el dispositivo está en línea. Si es así, la etiqueta muestra Conectado ; de lo contrario, se muestra sin conexión .
+
+Paso 5 agrega un cuadro para componer tweets
+Debajo de la etiqueta de estado de conexión, inserte un control de entrada de texto y cámbiele el nombre por NewTweetTextInput .
+
+Establezca la propiedad predeterminada del cuadro de entrada de texto en .
+
+Galería sobre información de estado y cuadro de entrada de texto
+
+Paso 6 agrega un botón para publicar el tweet
+Debajo del cuadro de entrada de texto, agregue un control Button y establezca su propiedad Text en este valor
+
+Tweet
+
+Establezca la propiedad OnSelect del botón en esta fórmula
+
+Aplicaciones de poder
+
+Copiar
+If( Connection.Connected,
+    Twitter.Tweet( , {tweetText NewTweetTextInput.Text} ),
+    Collect( LocalTweetsToPost, {tweetText NewTweetTextInput.Text} );
+        SaveData( LocalTweetsToPost, LocalTweetsToPost )
+);
+Reset( NewTweetTextInput );
+En la propiedad OnStart para la aplicación , agregue una línea al final de la fórmula
+
+Aplicaciones de poder
+
+Copiar
+If( Connection.Connected,
+    ClearCollect( LocalTweets, Twitter.SearchTweet( PowerApps, {maxResults 100} ) );
+        Set( statusText, Online data ),
+    LoadData( LocalTweets, LocalTweets, true );
+        Set( statusText, Local data )
+);
+SaveData( LocalTweets, LocalTweets );
+LoadData( LocalTweetsToPost, LocalTweetsToPost, true );   added line
+Ejecuta la fórmula para cargar tweets con línea no comentada
+
+Esta fórmula determina si el dispositivo está en línea
+
+Si el dispositivo está en línea, publica el tweet de inmediato.
+Si el dispositivo está fuera de línea, captura el tweet en una colección LocalTweetsToPost y lo guarda en el dispositivo.
+Luego, la fórmula restablece el texto en el cuadro de entrada de texto.
+
+Paso 7 busca nuevos tweets
+En el lado derecho del botón, agregue un control Temporizador .
+
+Aplicaciones finales
+
+Establezca la propiedad Duración del temporizador en 300000 .
+
+Establezca las propiedades de inicio automático y repetición del temporizador en verdadero .
+
+Configure el OnTimerEnd del temporizador para esta fórmula
+
+Aplicaciones de poder
+
+Copiar
+If( Connection.Connected,
+    ForAll( LocalTweetsToPost, Twitter.Tweet( , {tweetText tweetText} ) );
+    Clear( LocalTweetsToPost );
+    ClearCollect( LocalTweets, Twitter.SearchTweet( PowerApps, {maxResults 10} ) );
+    SaveData( LocalTweets, LocalTweets );
+)
+Esta fórmula determina si el dispositivo está en línea. Si es así, la aplicación tuitea todos los elementos de la colección LocalTweetsToPost y luego borra la colección.
