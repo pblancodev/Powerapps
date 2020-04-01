@@ -1,0 +1,62 @@
+Paso 2: Manejo de escenarios de solo lectura y lectura-escritura
+Los datos que importó son estáticos , por lo tanto, de solo lectura. Si su aplicación es de solo lectura (es decir, solo muestra datos al usuario), consulte las tablas directamente en la aplicación. Por ejemplo, si desea acceder al campo Título en la tabla SiteInspector , use SiteInspector.Title en su fórmula.
+
+Si su aplicación es de lectura y escritura, primero extraiga los datos de cada tabla en una colección , que es una estructura de datos tabular en Power Apps. Luego trabaje con la colección en lugar de la mesa. Para extraer datos de los SiteInspector y SitePhotos tablas en las SiteInspectorCollect y SitePhotosCollect colecciones:
+
+Aplicaciones de poder
+
+Copiar
+ClearCollect( SiteInspectorCollect, SiteInspector ); 
+ClearCollect( SitePhotosCollect, SitePhotos )
+La fórmula borra ambas colecciones, luego recopila datos de cada tabla en la colección apropiada:
+
+Llame a esta fórmula en algún lugar de su aplicación para cargar los datos.
+Vea todas las colecciones en su aplicación navegando a Archivo > Colecciones .
+Para obtener más información, consulte Crear y actualizar una colección en su aplicación .
+Ahora, si desea acceder al campo Título , use SiteInspectorCollect.Title en su fórmula.
+
+Paso 3: agregue, actualice y elimine datos en su aplicación
+Has visto cómo leer datos directamente y de una colección; ahora le mostraremos cómo agregar, actualizar y eliminar datos en una colección:
+
+Para agregar una fila a una colección , use Collect (DataSource, Item, ...) :
+
+Aplicaciones de poder
+
+Copiar
+Collect( SiteInspectorCollect,
+    {
+        ID: Value( Max( SiteInspectorCollect, ID ) + 1 ),
+        Title: TitleText.Text,
+        SubTitle: SubTitleText.Text,
+        Description: DescriptionText.Text
+    }
+)
+Para actualizar una fila en una colección , use UpdateIf (DataSource, Condition1, ChangeRecord1 [, Condition2, ChangeRecord2, ...]) :
+
+Aplicaciones de poder
+
+Copiar
+UpdateIf( SiteInspectorCollect,
+    ID = record.ID,
+    {
+        Title: TitleEditText.Text,
+        SubTitle: SubTitleEditText.Text,
+        Description: DescriptionEditText.Text
+    }
+)
+Para eliminar una fila de una colección , use RemoveIf (DataSource, Condition [, ...]) :
+
+Aplicaciones de poder
+
+Copiar
+RemoveIf( SiteInspectorCollect, ID = record.ID )
+ Nota
+
+Las colecciones contienen datos solo mientras la aplicación se está ejecutando; cualquier cambio se descarta cuando se cierra la aplicación.
+
+En resumen, puede crear una versión de su aplicación con datos integrados, que simula la experiencia de su aplicación al conectarse a datos externos. Una vez que los datos estén integrados, estará listo para publicar esta aplicación como una solución de prueba de manejo en AppSource.com.
+
+¿Cómo enumero mi solución Test Drive en AppSource.com?
+Ahora que su aplicación está lista, es hora de publicarla en AppSource.com. Para comenzar este proceso, complete el formulario de solicitud en PowerApps.com.
+
+Una vez que presente la solicitud, recibirá un correo electrónico con instrucciones sobre cómo enviar su aplicación para que se publique en AppSource.com. La documentación de incorporación que captura el proceso completo de extremo a extremo también se puede descargar aquí .
